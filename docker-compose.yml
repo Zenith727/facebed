@@ -1,0 +1,28 @@
+services:
+  facebed:
+    build: .
+    container_name: facebed
+    ports:
+      - "9812:9812"
+    restart: unless-stopped
+    volumes:
+      - ./cookies.json:/facebed/cookies.json
+    labels:
+      - "traefik.enable=true"
+      # Secure Router (HTTPS)
+      - "traefik.http.routers.facebed-secure.rule=Host(`facebed.nekos.work`)"
+      - "traefik.http.routers.facebed-secure.entrypoints=websecure"
+      - "traefik.http.routers.facebed-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.services.facebed-secure.loadbalancer.server.port=9812"
+      
+      # Plain Router (HTTP) -> Redirect to HTTPS
+      - "traefik.http.routers.facebed.rule=Host(`facebed.nekos.work`)"
+      - "traefik.http.routers.facebed.entrypoints=web"
+      - "traefik.http.routers.facebed.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    networks:
+      - stremthru
+
+networks:
+  stremthru:
+    external: true

@@ -1,0 +1,16 @@
+# Credentials and secrets
+cookies.json
+
+# Go binaries and build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+facebed
+
+# OS specific files
+.DS_Store
+Thumbs.db
