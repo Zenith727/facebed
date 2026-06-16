@@ -1,0 +1,12 @@
+.git
+.agent
+scratch/
+temp_clone/
+facebed.exe
+test_fb_live*
+*debug_fb.html
+*.go.tmp
+*.py
+*.webp
+*.png
+*.jpg

@@ -1,13 +1,16 @@
-FROM python:3.14-alpine AS builder
+FROM golang:1.25-alpine AS builder
 WORKDIR /app
-COPY requirements.txt .
-RUN pip3.14 install -r ./requirements.txt
-
-FROM python:3.14-alpine
-WORKDIR /facebed
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN /bin/sh -c "echo '{}' > ./config.yaml"
-COPY --from=builder /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
-RUN adduser -D facebed
-USER facebed
-CMD ["python3.14", "./facebed.py", "-c", "./config.yaml"]
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o facebed .
+
+FROM alpine:3.18
+RUN apk --no-cache add ca-certificates
+WORKDIR /facebed
+COPY --from=builder /app/facebed /facebed/facebed
+COPY --from=builder /app/assets /facebed/assets
+COPY --from=builder /app/crawler-user-agents.json /facebed/crawler-user-agents.json
+
+EXPOSE 9812
+ENTRYPOINT ["/facebed/facebed"]
